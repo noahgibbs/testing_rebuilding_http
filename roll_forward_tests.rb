@@ -42,7 +42,7 @@ end
 
 if File.exist?(RHTTP_REPO)
   Dir.chdir(RHTTP_REPO) do
-    system "git fetch && git checkout main && git pull" || raise("Error git pulling in repo: #{$!.inspect}")
+    system "git fetch --tags && git checkout main && git reset --hard origin/main" || raise("Error git pulling in repo: #{$!.inspect}")
   end
 else
   system "git clone https://github.com/noahgibbs/rebuilding_http.git #{RHTTP_REPO}" || raise("Couldn't clone repo! #{$!.inspect}")
@@ -82,6 +82,14 @@ class Minitest::Test
     yield
     Process.kill 9, pid
   end
+
+  def assert_string_includes(str, inc, times: 1)
+    if times == 1
+      assert str.include?(inc), "Expected string #{str.inspect} to include #{inc.inspect}!"
+    else
+      assert str.scan(Regexp.new(inc)).size >= times, "Expected string #{str.inspect} to include #{inc.inspect} #{times} times!"
+    end
+  end
 end
 
 class TestChapterOneCode < Minitest::Test
@@ -97,6 +105,12 @@ class TestChapterOneCode < Minitest::Test
     with_cmd_out_and_err(cmd: "curl -v http://localhost:4321") do |out, _err|
       assert out.include?("Hello World"), "Server output #{out.inspect} must include 'Hello World'!"
     end
+
+    # Test multiple consecutive requests on the same connection
+    with_cmd_out_and_err(cmd: "curl http://localhost:4321  http://localhost:4321  http://localhost:4321") do |out, _err|
+      assert_string_includes out, "Hello World!", times: 3
+    end
+
   end
 end
 

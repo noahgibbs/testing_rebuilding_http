@@ -121,3 +121,42 @@ class TestChapterThreeCode < Minitest::Test
     end
   end
 end
+
+class TestChapterFourCode < Minitest::Test
+  def setup
+    check_out_git_tag("chapter_5")
+    @server_pid = time_limited_fork_server(cmd: "ruby -I./lib -rblue_eyes/dsl little_app.rb", dir: File.join(RHTTP_REPO, "blue_eyes"))
+  end
+  def teardown
+    Process.kill(9, @server_pid) if @server_pid
+  end
+
+  def test_expected_out
+    with_cmd_out_and_err(cmd: "curl http://localhost:4321/frank") do |out, _err|
+      assert out.include?("I did it my way...")
+    end
+    with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
+      assert out.include?("Who are you looking for?")
+    end
+  end
+end
+
+class TestChapterFiveCode < Minitest::Test
+  def setup
+    check_out_git_tag("chapter_6")
+    @server_pid = time_limited_fork_server(cmd: "ruby -I./lib -rblue_eyes/dsl little_form.rb", dir: File.join(RHTTP_REPO, "blue_eyes"))
+  end
+  def teardown
+    Process.kill(9, @server_pid) if @server_pid
+  end
+
+  def test_expected_out
+    with_cmd_out_and_err(cmd: "curl http://localhost:4321/") do |out, _err|
+      assert out.include?("Who are you?")
+    end
+    with_cmd_out_and_err(cmd: "curl -d who=Bobo http://localhost:4321/") do |out, _err|
+      assert out.include?("Hello, Bobo")
+      assert out.include?("Request headers")
+    end
+  end
+end

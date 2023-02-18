@@ -1,5 +1,9 @@
 #!/usr/bin/env ruby -w
 
+if RUBY_VERSION[0] != "3"
+  raise "Please use Ruby version 3! (because Noah installs his gems there, not because this uses Ruby 3 features)"
+end
+
 require "minitest/autorun"
 
 Dir.chdir(__dir__)
@@ -48,7 +52,8 @@ end
 class Minitest::Test
   def check_out_git_tag(tag)
     Dir.chdir(RHTTP_REPO) do
-      system "git checkout #{tag}" || raise("Error checking out git tag #{tag}: #{$!.inspect}")
+      with_cmd_out_and_err(cmd: "git checkout #{tag}") { }
+      #system "git checkout #{tag}" || raise("Error checking out git tag #{tag}: #{$!.inspect}")
     end
   end
 
@@ -70,6 +75,12 @@ class Minitest::Test
     end
     sleep 0.5 # Let the server start up
     pid
+  end
+
+  def with_time_limited_fork_server(t: 5.0, cmd:, dir: RHTTP_REPO)
+    pid = time_limited_fork_server(t: t, cmd: cmd, dir: dir)
+    yield
+    Process.kill 9, pid
   end
 end
 
@@ -157,6 +168,46 @@ class TestChapterFiveCode < Minitest::Test
     with_cmd_out_and_err(cmd: "curl -d who=Bobo http://localhost:4321/") do |out, _err|
       assert out.include?("Hello, Bobo")
       assert out.include?("Request headers")
+    end
+    with_cmd_out_and_err(cmd: "curl -d who=one%2bone http://localhost:4321/") do |out, _err|
+      assert out.include?("Hello, one+one")
+    end
+  end
+end
+
+class TestChapterSixCode < Minitest::Test
+  def setup
+    check_out_git_tag("chapter_7")
+    @server_pid = time_limited_fork_server(cmd: "ruby -I./lib -rblue_eyes/dsl little_form.rb", dir: File.join(RHTTP_REPO, "blue_eyes"))
+  end
+  def teardown
+    Process.kill(9, @server_pid) if @server_pid
+  end
+
+  def test_expected_out
+    with_cmd_out_and_err(cmd: "curl http://localhost:4321/") do |out, _err|
+      assert out.include?("Who are you?")
+    end
+    with_cmd_out_and_err(cmd: "curl -d who=Bobo http://localhost:4321/") do |out, _err|
+      assert out.include?("Hello, Bobo")
+      assert out.include?("Request headers")
+    end
+  end
+end
+
+# The Rack chapter
+class TestChapterSevenCode < Minitest::Test
+  def setup
+    check_out_git_tag("chapter_8")
+    @server_pid = time_limited_fork_server(cmd: "bundle exec ruby sin_app.rb", dir: RHTTP_REPO)
+  end
+  def teardown
+    Process.kill(9, @server_pid) if @server_pid
+  end
+
+  def test_expected_out
+    with_cmd_out_and_err(cmd: "curl http://localhost:4567/") do |out, _err|
+      assert out.include?("Here I am!")
     end
   end
 end

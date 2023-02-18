@@ -58,7 +58,7 @@ class Minitest::Test
   end
 
   # Returns the server PID
-  def time_limited_fork_server(t: 5.0, cmd:, dir: RHTTP_REPO)
+  def time_limited_fork_server(t: 5.0, cmd:, dir: RHTTP_REPO, server_sleep: 0.5)
     pid = fork do
       STDOUT.reopen("/dev/null", "w")
       STDERR.reopen("/dev/null", "w")
@@ -73,7 +73,7 @@ class Minitest::Test
       sleep t
       Process.kill 9, pid
     end
-    sleep 0.5 # Let the server start up
+    sleep server_sleep if server_sleep > 0.0 # Let the server start up
     pid
   end
 
@@ -103,7 +103,7 @@ class TestChapterOneCode < Minitest::Test
 
   def test_expected_out
     with_cmd_out_and_err(cmd: "curl -v http://localhost:4321") do |out, _err|
-      assert out.include?("Hello World"), "Server output #{out.inspect} must include 'Hello World'!"
+      assert_string_includes(out, "Hello World")
     end
 
     # Test multiple consecutive requests on the same connection
@@ -125,7 +125,10 @@ class TestChapterTwoCode < Minitest::Test
 
   def test_expected_out
     with_cmd_out_and_err(cmd: "curl -v http://localhost:4321") do |out, _err|
-      assert out.include?("Hello From a Library, World"), "Server output #{out.inspect} must include 'Hello From a Library World'!"
+      assert_string_includes out, "Hello From a Library, World"
+    end
+    with_cmd_out_and_err(cmd: "curl http://localhost:4321  http://localhost:4321  http://localhost:4321") do |out, _err|
+      assert_string_includes out, "Hello From a Library, World", times: 3
     end
   end
 end
@@ -141,8 +144,11 @@ class TestChapterThreeCode < Minitest::Test
 
   def test_expected_out
     with_cmd_out_and_err(cmd: "curl -v http://localhost:4321") do |out, err|
-      assert out.include?("Hello Response"), "Server output #{out.inspect} must include 'Hello Response'!"
-      assert err.include?("Framework: UltraCool")
+      assert_string_includes out, "Hello Response"
+      assert_string_includes err, "Framework: UltraCool"
+    end
+    with_cmd_out_and_err(cmd: "curl http://localhost:4321  http://localhost:4321  http://localhost:4321") do |out, _err|
+      assert_string_includes out, "Hello Response", times: 3
     end
   end
 end
@@ -158,10 +164,13 @@ class TestChapterFourCode < Minitest::Test
 
   def test_expected_out
     with_cmd_out_and_err(cmd: "curl http://localhost:4321/frank") do |out, _err|
-      assert out.include?("I did it my way...")
+      assert_string_includes out, "I did it my way..."
     end
     with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
-      assert out.include?("Who are you looking for?")
+      assert_string_includes out, "Who are you looking for?"
+    end
+    with_cmd_out_and_err(cmd: "curl http://localhost:4321  http://localhost:4321  http://localhost:4321") do |out, _err|
+      assert_string_includes out, "Who are you looking for?", times: 3
     end
   end
 end
@@ -177,18 +186,19 @@ class TestChapterFiveCode < Minitest::Test
 
   def test_expected_out
     with_cmd_out_and_err(cmd: "curl http://localhost:4321/") do |out, _err|
-      assert out.include?("Who are you?")
+      assert_string_includes out, "Who are you?"
     end
     with_cmd_out_and_err(cmd: "curl -d who=Bobo http://localhost:4321/") do |out, _err|
-      assert out.include?("Hello, Bobo")
-      assert out.include?("Request headers")
+      assert_string_includes out, "Hello, Bobo"
+      assert_string_includes out, "Request headers"
     end
     with_cmd_out_and_err(cmd: "curl -d who=one%2bone http://localhost:4321/") do |out, _err|
-      assert out.include?("Hello, one+one")
+      assert_string_includes out, "Hello, one+one"
     end
   end
 end
 
+# Misbehaviour chapter (thread pool)
 class TestChapterSixCode < Minitest::Test
   def setup
     check_out_git_tag("chapter_7")
@@ -200,11 +210,11 @@ class TestChapterSixCode < Minitest::Test
 
   def test_expected_out
     with_cmd_out_and_err(cmd: "curl http://localhost:4321/") do |out, _err|
-      assert out.include?("Who are you?")
+      assert_string_includes out, "Who are you?"
     end
     with_cmd_out_and_err(cmd: "curl -d who=Bobo http://localhost:4321/") do |out, _err|
-      assert out.include?("Hello, Bobo")
-      assert out.include?("Request headers")
+      assert_string_includes out, "Hello, Bobo"
+      assert_string_includes out, "Request headers"
     end
   end
 end
@@ -213,7 +223,7 @@ end
 class TestChapterSevenCode < Minitest::Test
   def setup
     check_out_git_tag("chapter_8")
-    @server_pid = time_limited_fork_server(cmd: "bundle exec ruby sin_app.rb", dir: RHTTP_REPO)
+    @server_pid = time_limited_fork_server(cmd: "bundle exec ruby sin_app.rb", dir: RHTTP_REPO, server_sleep: 1.0)
   end
   def teardown
     Process.kill(9, @server_pid) if @server_pid

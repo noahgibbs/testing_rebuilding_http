@@ -4,6 +4,7 @@ if RUBY_VERSION[0] != "3"
   raise "Please use Ruby version 3! (because Noah installs his gems there, not because this uses Ruby 3 features)"
 end
 
+require "socket"
 require "minitest/autorun"
 
 Dir.chdir(__dir__)
@@ -81,6 +82,13 @@ class Minitest::Test
     pid = time_limited_fork_server(t: t, cmd: cmd, dir: dir)
     yield
     Process.kill 9, pid
+  end
+
+  def with_open_connections(how_many:1, port:4321)
+    # Open plausible-looking but incomplete connections
+    conns = (0...how_many).map { s = TCPSocket.new('localhost', port); s.write "GET / HTTP/1.1\r\nHost:"; s }
+    yield
+    conns.each { |s| s.close }
   end
 
   def assert_string_includes(str, inc, times: 1)
@@ -212,9 +220,20 @@ class TestChapterSixCode < Minitest::Test
     with_cmd_out_and_err(cmd: "curl http://localhost:4321/") do |out, _err|
       assert_string_includes out, "Who are you?"
     end
+  end
+
+  def test_for_request_headers
     with_cmd_out_and_err(cmd: "curl -d who=Bobo http://localhost:4321/") do |out, _err|
       assert_string_includes out, "Hello, Bobo"
       assert_string_includes out, "Request headers"
+    end
+  end
+
+  def test_misbehaviour
+    with_open_connections(how_many: 8) do
+      with_cmd_out_and_err(cmd: "curl http://localhost:4321/") do |out, _err|
+        assert_string_includes out, "Who are you?"
+      end
     end
   end
 end

@@ -115,7 +115,7 @@ class TestChapterOneCode < Minitest::Test
     end
 
     # Test multiple consecutive requests on the same connection
-    with_cmd_out_and_err(cmd: "curl http://localhost:4321  http://localhost:4321  http://localhost:4321") do |out, _err|
+    with_cmd_out_and_err(cmd: "curl http://localhost:4321 http://localhost:4321 http://localhost:4321") do |out, _err|
       assert_string_includes out, "Hello World!", times: 3
     end
 
@@ -135,7 +135,7 @@ class TestChapterTwoCode < Minitest::Test
     with_cmd_out_and_err(cmd: "curl -v http://localhost:4321") do |out, _err|
       assert_string_includes out, "Hello From a Library, World"
     end
-    with_cmd_out_and_err(cmd: "curl http://localhost:4321  http://localhost:4321  http://localhost:4321") do |out, _err|
+    with_cmd_out_and_err(cmd: "curl http://localhost:4321 http://localhost:4321 http://localhost:4321") do |out, _err|
       assert_string_includes out, "Hello From a Library, World", times: 3
     end
   end
@@ -155,7 +155,7 @@ class TestChapterThreeCode < Minitest::Test
       assert_string_includes out, "Hello Response"
       assert_string_includes err, "Framework: UltraCool"
     end
-    with_cmd_out_and_err(cmd: "curl http://localhost:4321  http://localhost:4321  http://localhost:4321") do |out, _err|
+    with_cmd_out_and_err(cmd: "curl http://localhost:4321 http://localhost:4321 http://localhost:4321") do |out, _err|
       assert_string_includes out, "Hello Response", times: 3
     end
   end
@@ -177,7 +177,7 @@ class TestChapterFourCode < Minitest::Test
     with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
       assert_string_includes out, "Who are you looking for?"
     end
-    with_cmd_out_and_err(cmd: "curl http://localhost:4321  http://localhost:4321  http://localhost:4321") do |out, _err|
+    with_cmd_out_and_err(cmd: "curl http://localhost:4321 http://localhost:4321 http://localhost:4321") do |out, _err|
       assert_string_includes out, "Who are you looking for?", times: 3
     end
   end
@@ -200,6 +200,10 @@ class TestChapterFiveCode < Minitest::Test
       assert_string_includes out, "Hello, Bobo"
       assert_string_includes out, "Request headers"
     end
+    # Test multiple consecutive requests on the same connection
+    with_cmd_out_and_err(cmd: "curl -d who=Bobo http://localhost:4321 http://localhost:4321 http://localhost:4321") do |out, _err|
+      assert_string_includes out, "Hello, Bobo", times: 3
+    end
     with_cmd_out_and_err(cmd: "curl -d who=one%2bone http://localhost:4321/") do |out, _err|
       assert_string_includes out, "Hello, one+one"
     end
@@ -219,6 +223,10 @@ class TestChapterSixCode < Minitest::Test
   def test_expected_out
     with_cmd_out_and_err(cmd: "curl http://localhost:4321/") do |out, _err|
       assert_string_includes out, "Who are you?"
+    end
+
+    with_cmd_out_and_err(cmd: "curl http://localhost:4321/ http://localhost:4321/ http://localhost:4321/") do |out, _err|
+      assert_string_includes out, "Who are you?", times: 3
     end
   end
 
@@ -250,7 +258,11 @@ class TestChapterSevenCode < Minitest::Test
 
   def test_expected_out
     with_cmd_out_and_err(cmd: "curl http://localhost:4567/") do |out, _err|
-      assert out.include?("Here I am!")
+      assert_string_includes out, "Here I am!"
+    end
+
+    with_cmd_out_and_err(cmd: "curl http://localhost:4567/ http://localhost:4567/ http://localhost:4567/") do |out, _err|
+      assert_string_includes out, "Here I am!", times: 3
     end
   end
 end

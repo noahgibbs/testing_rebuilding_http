@@ -91,6 +91,15 @@ class Minitest::Test
     conns.each { |s| s.close }
   end
 
+  def bad_http_request(how_many:1, port:4321)
+    # Send a malformed HTTP request
+    (0...how_many).each do
+      s = TCPSocket.new('localhost', port)
+      s.write "GET / asdfnjk;sdnfgdjsknflnsdaljkndjksanfjklsad\r\nHost: bad-host.com"
+      s.close
+    end
+  end
+
   def assert_string_includes(str, inc, times: 1)
     if times == 1
       assert str.include?(inc), "Expected string #{str.inspect} to include #{inc.inspect}!"
@@ -118,7 +127,13 @@ class TestChapterOneCode < Minitest::Test
     with_cmd_out_and_err(cmd: "curl http://localhost:4321 http://localhost:4321 http://localhost:4321") do |out, _err|
       assert_string_includes out, "Hello World!", times: 3
     end
+  end
 
+  def test_bad_requests
+    bad_http_request(how_many: 1, port:4321)
+    with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
+      assert_string_includes(out, "Hello World")
+    end
   end
 end
 
@@ -139,6 +154,13 @@ class TestChapterTwoCode < Minitest::Test
       assert_string_includes out, "Hello From a Library, World", times: 3
     end
   end
+
+  #def test_bad_requests
+  #  bad_http_request(how_many: 1, port:4321)
+  #  with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
+  #    assert_string_includes(out, "Hello World")
+  #  end
+  #end
 end
 
 class TestChapterThreeCode < Minitest::Test
@@ -159,6 +181,13 @@ class TestChapterThreeCode < Minitest::Test
       assert_string_includes out, "Hello Response", times: 3
     end
   end
+
+  #def test_bad_requests
+  #  bad_http_request(how_many: 1, port:4321)
+  #  with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
+  #    assert_string_includes(out, "Hello World")
+  #  end
+  #end
 end
 
 class TestChapterFourCode < Minitest::Test
@@ -181,6 +210,13 @@ class TestChapterFourCode < Minitest::Test
       assert_string_includes out, "Who are you looking for?", times: 3
     end
   end
+
+  #def test_bad_requests
+  #  bad_http_request(how_many: 1, port:4321)
+  #  with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
+  #    assert_string_includes(out, "Hello World")
+  #  end
+  #end
 end
 
 class TestChapterFiveCode < Minitest::Test
@@ -208,6 +244,13 @@ class TestChapterFiveCode < Minitest::Test
       assert_string_includes out, "Hello, one+one"
     end
   end
+
+  #def test_bad_requests
+  #  bad_http_request(how_many: 1, port:4321)
+  #  with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
+  #    assert_string_includes(out, "Hello World")
+  #  end
+  #end
 end
 
 # Misbehaviour chapter (thread pool)
@@ -244,6 +287,13 @@ class TestChapterSixCode < Minitest::Test
       end
     end
   end
+
+  #def test_bad_requests
+  #  bad_http_request(how_many: 1, port:4321)
+  #  with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
+  #    assert_string_includes(out, "Hello World")
+  #  end
+  #end
 end
 
 # The Rack chapter
@@ -263,6 +313,13 @@ class TestChapterSevenCode < Minitest::Test
 
     with_cmd_out_and_err(cmd: "curl http://localhost:4567/ http://localhost:4567/ http://localhost:4567/") do |out, _err|
       assert_string_includes out, "Here I am!", times: 3
+    end
+  end
+
+  def test_bad_requests
+    bad_http_request(how_many: 1, port:4567)
+    with_cmd_out_and_err(cmd: "curl http://localhost:4567") do |out, _err|
+      assert_string_includes(out, "Here I am!")
     end
   end
 end

@@ -43,7 +43,7 @@ end
 
 if File.exist?(RHTTP_REPO)
   Dir.chdir(RHTTP_REPO) do
-    system "git fetch --tags && git checkout main && git reset --hard origin/main" || raise("Error git pulling in repo: #{$!.inspect}")
+    system "git fetch && git checkout main && git reset --hard origin/main && git pull -f --tags" || raise("Error git pulling in repo: #{$!.inspect}")
   end
 else
   system "git clone https://github.com/noahgibbs/rebuilding_http.git #{RHTTP_REPO}" || raise("Couldn't clone repo! #{$!.inspect}")

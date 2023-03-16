@@ -184,12 +184,12 @@ class TestChapterThreeCode < Minitest::Test
     end
   end
 
-  #def test_bad_requests_chapter_3
-  #  bad_http_request(how_many: 1, port:4321)
-  #  with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
-  #    assert_string_includes(out, "Hello World")
-  #  end
-  #end
+  def test_bad_requests_chapter_3
+    bad_http_request(how_many: 1, port:4321)
+    with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
+      assert_string_includes(out, "Hello Response")
+    end
+  end
 end
 
 class TestChapterFourCode < Minitest::Test
@@ -213,12 +213,12 @@ class TestChapterFourCode < Minitest::Test
     end
   end
 
-  #def test_bad_requests_chapter_4
-  #  bad_http_request(how_many: 1, port:4321)
-  #  with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
-  #    assert_string_includes(out, "Hello World")
-  #  end
-  #end
+  def test_bad_requests_chapter_4
+    bad_http_request(how_many: 1, port:4321)
+    with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
+      assert_string_includes(out, "Who are you looking for?")
+    end
+  end
 end
 
 class TestChapterFiveCode < Minitest::Test
@@ -247,12 +247,12 @@ class TestChapterFiveCode < Minitest::Test
     end
   end
 
-  #def test_bad_requests_chapter_5
-  #  bad_http_request(how_many: 1, port:4321)
-  #  with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
-  #    assert_string_includes(out, "Hello World")
-  #  end
-  #end
+  def test_bad_requests_chapter_5
+    bad_http_request(how_many: 1, port:4321)
+    with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
+      assert_string_includes(out, "Who are you?")
+    end
+  end
 end
 
 # Misbehaviour chapter (thread pool)

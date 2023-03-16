@@ -118,7 +118,8 @@ class TestChapterOneCode < Minitest::Test
     Process.kill(9, @server_pid) if @server_pid
   end
 
-  def test_expected_out
+  # By making sure each test has a unique name, you can run them individually with the Minitest --name parameter
+  def test_expected_out_chapter_1
     with_cmd_out_and_err(cmd: "curl -v http://localhost:4321") do |out, _err|
       assert_string_includes(out, "Hello World")
     end
@@ -129,7 +130,7 @@ class TestChapterOneCode < Minitest::Test
     end
   end
 
-  def test_bad_requests
+  def test_bad_requests_chapter_1
     bad_http_request(how_many: 1, port:4321)
     with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
       assert_string_includes(out, "Hello World")
@@ -146,7 +147,7 @@ class TestChapterTwoCode < Minitest::Test
     Process.kill(9, @server_pid) if @server_pid
   end
 
-  def test_expected_out
+  def test_expected_out_chapter_2
     with_cmd_out_and_err(cmd: "curl -v http://localhost:4321") do |out, _err|
       assert_string_includes out, "Hello From a Library, World"
     end
@@ -155,6 +156,7 @@ class TestChapterTwoCode < Minitest::Test
     end
   end
 
+  # Don't expect this to work for the chapter 2 server, no error handling
   #def test_bad_requests
   #  bad_http_request(how_many: 1, port:4321)
   #  with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
@@ -172,7 +174,7 @@ class TestChapterThreeCode < Minitest::Test
     Process.kill(9, @server_pid) if @server_pid
   end
 
-  def test_expected_out
+  def test_expected_out_chapter_3
     with_cmd_out_and_err(cmd: "curl -v http://localhost:4321") do |out, err|
       assert_string_includes out, "Hello Response"
       assert_string_includes err, "Framework: UltraCool"
@@ -182,7 +184,7 @@ class TestChapterThreeCode < Minitest::Test
     end
   end
 
-  #def test_bad_requests
+  #def test_bad_requests_chapter_3
   #  bad_http_request(how_many: 1, port:4321)
   #  with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
   #    assert_string_includes(out, "Hello World")
@@ -199,7 +201,7 @@ class TestChapterFourCode < Minitest::Test
     Process.kill(9, @server_pid) if @server_pid
   end
 
-  def test_expected_out
+  def test_expected_out_chapter_4
     with_cmd_out_and_err(cmd: "curl http://localhost:4321/frank") do |out, _err|
       assert_string_includes out, "I did it my way..."
     end
@@ -211,7 +213,7 @@ class TestChapterFourCode < Minitest::Test
     end
   end
 
-  #def test_bad_requests
+  #def test_bad_requests_chapter_4
   #  bad_http_request(how_many: 1, port:4321)
   #  with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
   #    assert_string_includes(out, "Hello World")
@@ -228,7 +230,7 @@ class TestChapterFiveCode < Minitest::Test
     Process.kill(9, @server_pid) if @server_pid
   end
 
-  def test_expected_out
+  def test_expected_out_chapter_5
     with_cmd_out_and_err(cmd: "curl http://localhost:4321/") do |out, _err|
       assert_string_includes out, "Who are you?"
     end
@@ -245,7 +247,7 @@ class TestChapterFiveCode < Minitest::Test
     end
   end
 
-  #def test_bad_requests
+  #def test_bad_requests_chapter_5
   #  bad_http_request(how_many: 1, port:4321)
   #  with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
   #    assert_string_includes(out, "Hello World")
@@ -263,7 +265,7 @@ class TestChapterSixCode < Minitest::Test
     Process.kill(9, @server_pid) if @server_pid
   end
 
-  def test_expected_out
+  def test_expected_out_chapter_6
     with_cmd_out_and_err(cmd: "curl http://localhost:4321/") do |out, _err|
       assert_string_includes out, "Who are you?"
     end
@@ -273,7 +275,7 @@ class TestChapterSixCode < Minitest::Test
     end
   end
 
-  def test_for_request_headers
+  def test_for_request_headers_chapter_6
     with_cmd_out_and_err(cmd: "curl -d who=Bobo http://localhost:4321/") do |out, _err|
       assert_string_includes out, "Hello, Bobo"
       assert_string_includes out, "Request headers"
@@ -306,7 +308,7 @@ class TestChapterSevenCode < Minitest::Test
     Process.kill(9, @server_pid) if @server_pid
   end
 
-  def test_expected_out
+  def test_expected_out_chapter_7
     with_cmd_out_and_err(cmd: "curl http://localhost:4567/") do |out, _err|
       assert_string_includes out, "Here I am!"
     end
@@ -316,7 +318,7 @@ class TestChapterSevenCode < Minitest::Test
     end
   end
 
-  def test_bad_requests
+  def test_bad_requests_chapter_7
     bad_http_request(how_many: 1, port:4567)
     with_cmd_out_and_err(cmd: "curl http://localhost:4567") do |out, _err|
       assert_string_includes(out, "Here I am!")

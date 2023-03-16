@@ -290,12 +290,12 @@ class TestChapterSixCode < Minitest::Test
     end
   end
 
-  #def test_bad_requests
-  #  bad_http_request(how_many: 1, port:4321)
-  #  with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
-  #    assert_string_includes(out, "Hello World")
-  #  end
-  #end
+  def test_bad_requests_chapter_6
+    bad_http_request(how_many: 1, port:4321)
+    with_cmd_out_and_err(cmd: "curl http://localhost:4321") do |out, _err|
+      assert_string_includes(out, "Who are you?")
+    end
+  end
 end
 
 # The Rack chapter

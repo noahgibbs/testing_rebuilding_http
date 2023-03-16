@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby -w
 
 if RUBY_VERSION[0] != "3"
-  raise "Please use Ruby version 3! (because Noah installs his gems there, not because this uses Ruby 3 features)"
+  raise "Please use Ruby version 3! (because Noah installs his gems there, not because this uses fancy features)"
 end
 
 require "socket"

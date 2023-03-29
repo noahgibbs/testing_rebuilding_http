@@ -43,7 +43,7 @@ end
 
 if File.exist?(RHTTP_REPO)
   Dir.chdir(RHTTP_REPO) do
-    system "git fetch && git checkout main && git reset --hard origin/main && git pull -f --tags" || raise("Error git pulling in repo: #{$!.inspect}")
+    system "git fetch && git checkout . && git checkout main && git reset --hard origin/main && git pull -f --tags" || raise("Error git pulling in repo: #{$!.inspect}")
   end
 else
   system "git clone https://github.com/noahgibbs/rebuilding_http.git #{RHTTP_REPO}" || raise("Couldn't clone repo! #{$!.inspect}")
@@ -53,7 +53,7 @@ end
 class Minitest::Test
   def check_out_git_tag(tag)
     Dir.chdir(RHTTP_REPO) do
-      with_cmd_out_and_err(cmd: "git checkout #{tag}") { }
+      with_cmd_out_and_err(cmd: "git checkout . && git checkout #{tag}") { }
       #system "git checkout #{tag}" || raise("Error checking out git tag #{tag}: #{$!.inspect}")
     end
   end
